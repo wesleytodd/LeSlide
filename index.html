@@ -10,42 +10,98 @@
 </head>
 
 <body>
-	<header>
+<div id="page-wrap">
+	<header id="page-header">
 		<h1>LeSlide</h1>
 		<h2>A sliding label effect for form elements</h2>
 	</header>
-	<div id="main" role="main">
+	
+	<section id="the-idea" class="container">
+		<h1>The Idea</h1>
+		<blockquote cite="http://www.lukew.com/resources/mobile_first.asp">Though top-aligned labels work well within the tight constraints of mobile screens, labels inside input fields can work even better.  <cite>~ Luke Wroblewski (Mobile First)</cite>
+		</blockquote>
+		<p>The traditional solution for labels inside the input is similar to the placeholder attribute in that once input is started, the label disappears.  So once we have some input we loose our guide for what the input is for, which is not great.  This plugin is a new way to deal with this problem.</p>
+		<p>So after reading Luke's book I figured I would polish this up and make it a bit more responsive and re-publish it.</p>
+	</section>
+	
+	<section id="the-example" class="container">
 		<form action="/" method="post">
 			
-			<div class="field-wrap text required">
+			<h1>The Example</h1>
+			
+			<div class="field-wrap text">
 				<label for="name">Name</label>
-				<input type="text" name="name" id="name" />
+				<input type="text" name="name" id="name" placeholder="John Smith" />
 			</div>
 			
-			<div class="field-wrap text required">
+			<div class="field-wrap email">
 				<label for="email">Email</label>
-				<input type="text" name="email" id="email" />
+				<input type="email" name="email" id="email" placeholder="example@example.com" />
 			</div>
 			
-			<div class="field-wrap text required">
-				<label for="subject">Phone</label>
-				<input type="text" name="subject" id="subject" />
+			<div class="field-wrap tel">
+				<label for="phone">Phone</label>
+				<input type="tel" name="phone" id="phone" placeholder="123-123-1234" />
 			</div>
 			
+			<div class="field-wrap textarea">
+				<label for="message">Message</label>
+				<textarea name="message" id="message" placeholder="Please be nice!" cols="10" rows="10"></textarea>
+			</div>
 			
 		</form>
+	</section>
+	<section id="the-code" class="container">
+		<h1>The Code</h1>
 		
-	</div>
+		<section>
+			<h2>The HTML</h2>
+			<pre><code>&lt;div class="field-wrap text">
+    &lt;label for="name">Name&lt;/label>
+    &lt;input type="text" name="name" id="name" placeholder="John Smith" />
+&lt;/div></code></pre>
+			
+		</section>
+		<section>
+			<h2>The CSS</h2>
+			<pre><code>.leSlide-wrap {
+    position: relative;
+}
+.leSlide-wrap label {
+    position: relative;
+    z-index: 1;
+    white-space: pre;
+}
+.leSlide-wrap input,
+.leSlide-wrap textarea {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 2;
+}</code></pre>
+		</section>
+		<section>
+			<h2>The Javascript</h2>
+			<pre><code>jQuery(document).ready(function($){
+    $('input, textarea').leSlide({
+        // Options
+    });
+});</code></pre>
+		</section>
+	</section>
+</div>
+
 
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
 	<script>window.jQuery || document.write('<script src="js/jquery-1.7.1.min.js"><\/script>')</script>
 
 	<script src="jquery.leSlide.js"></script>
 	<script>
-		
 		jQuery(document).ready(function($){
 			
-			$('input').leSlide();
+			$('input, textarea').leSlide({
+				animate: false
+			});
 			
 		});
 	</script>

@@ -2,21 +2,23 @@
  * Label Slide
  * http://wesleytodd.com/
  *
- * Version 1.2
+ * Version 1.3
  *
  * Requires     jQuery
- * Reccomended  Modernizr
  * 
  * Basic Usage:
  * $('form').leSlide({
- *      'wrapperClass'         : 'leSlide-wrap',//This class will be assigned to the wrapper for the input and label
- *      'focusClass'           : 'field-focus', //This class is applied to the wrapper when focus is received
+ *      'wrapper'              : false,         //A function that returns the wraper as a jQuery object
+ *      'wrapperClass'         : 'leSlide-wrap',//This class will be assigned to the wraper for the input and label
+ *      'label'                : false,         //A function that returns the label as a jQuery object
+ *      'focusClass'           : 'field-focus', //This class is applied to the wraper when focus is recieved
  *      'animate'              : true,          //Use jQuery animation
  *      'animateEasing'        : 'swing',       //jQuery animate() easing
  *      'animateDuration'      : 500,           //jQuery animate() duration
  *      'animateComplete'      : function(){},  //jQuery animate() callback function
  *      'widthOffset'          : 35,            //Add some extra pixels after the text length for better spacing
- *      'textIndendMultiplier' : 2.66           //This multiplier changes the speed the label animates off the screen
+ *      'textIndentMultiplier' : 2.66,          //This multiplier changes the speed the label animates off the screen
+ *      'textIndentOffset'     : 10             //Adds extra spacing on the right of label
  * });
  */
 (function($){
@@ -29,32 +31,20 @@
 		base.init = function(){
 			base.options = $.extend({}, $.leSlide.defaultOptions, options);
 			
-			base.$label = $('label[for='+base.$el.attr('id')+']');
-			base.placeholder = base.$el.attr('placeholder');
-			if(base.placeholder == undefined){
-				if(base.$label.length > 1){
-					base.$label.each(function(i, e){
-						if($(this).is(base.$el.siblings())){
-							base.$label = $(this);
-							return false;
-						}
-					});
-				}else if(base.$label.length == 0){
-					if(base.placeholder != undefined){
-						base.$label = $('<label for="'+base.$el.attr('id')+'">'+base.placeholder+'</label>');
-					}else{
-						base.$label = $('<label for="'+base.$el.attr('id')+'">'+base.toCamel(base.$el.attr('name'))+'</label>');
-					}
-				}
+			if(typeof base.options.wrapper == 'function'){
+				base.$wrapper = base.options.wrapper.call(this, base.$el).addClass(base.options.wrapperClass);
 			} else {
-				base.$label = $('<label for="'+base.$el.attr('id')+'">'+base.placeholder+'</label>');
-				base.$el.removeAttr('placeholder');
+				base.$wrapper = base.$el.wrap('<div class="'+base.options.wrapperClass+'" />').closest('.'+base.options.wrapperClass);
 			}
-			base.$el
-				.wrap('<div class="'+base.options.wrapperClass+'" />')
-				.parent('.'+base.options.wrapperClass)
-				.prepend(base.$label)
-			;
+			
+			if(typeof base.options.label == 'function'){
+				base.$label = base.options.label.call(this, base.$el).attr('for', base.$el.attr('id'));
+			} else {
+				base.$label = $('<label>'+base.$el.attr('placeholder')+'</label>').attr('for', base.$el.attr('id'));
+			}
+			base.$el.removeAttr('placeholder');
+			base.$wrapper.prepend(base.$label);
+			
 			if(base.options.animate){
 				base.$label.css({
 					'-moz-transition'    : 'none',
@@ -64,7 +54,13 @@
 					'transition'         : 'none'
 				});
 			}
-			
+			base.updateWidths();
+			base.attachEventHandler(base.el);
+			base.eventHandler($.Event());
+		};
+		
+		base.updateWidths = function(){
+			console.log('here');
 			var tempLabel = base.$label.clone().css({
 				'display' : 'inline',
 				'width'   : 'auto'
@@ -74,15 +70,18 @@
 			tempLabel.remove();
 			
 			base.inputWidth = base.$el.width();
-			base.baseTextIndent = base.inputWidth - base.labelInlineWidth;
-			
-			base.attachEventHandler(base.el);
-			base.eventHandler($.Event());
-		};
+			base.baseTextIndent = base.inputWidth - base.labelInlineWidth - base.options.textIndentOffset;
+		}
 		
 		base.attachEventHandler = function(el){
 			$(el).on('focus blur keyup', function(e){
 				base.eventHandler(e);
+			});
+			$(window).on('resize', function(){
+				clearTimeout(base.resizeTimer);
+				base.resizeTimer = setTimeout(function(){
+					base.updateWidths();
+				}, 20)
 			});
 			//Compatibility with the masked password plugin
 			$(el).on('unmaskreplace', function(e, newel){
@@ -101,15 +100,15 @@
 					ti = base.baseTextIndent;
 				}else{
 					ti = base.$label.css('text-indent');
+					ti = ti - base.options.textIndentOffset;
 				}
-				base.$el.parent('.'+base.options.wrapperClass).addClass(base.options.focusClass);
+				base.$el.closest('.'+base.options.wrapperClass).addClass(base.options.focusClass);
 			}else if(e.type == 'blur'){
-				if(base.$el.val() == ''){
-					//do nothing
-				}else{
+				if(base.$el.val() != ''){
 					ti = base.$label.css('text-indent');
+					ti = ti  - base.options.textIndentOffset;
 				}
-				base.$el.parent('.'+base.options.wrapperClass).removeClass(base.options.focusClass);
+				base.$el.closest('.'+base.options.wrapperClass).removeClass(base.options.focusClass);
 			}else{
 				if(base.$el.val() != ''){
 					//this is where we calculate the more complex text indent
@@ -117,8 +116,8 @@
 					base.$el.after(shadow);
 					var sw = shadow.width();
 					shadow.remove();
-					if (sw > base.inputWidth - base.labelInlineWidth - base.options.widthOffset){
-						ti = base.baseTextIndent + (sw / base.options.textIndendMultiplier);
+					if (sw > base.inputWidth - base.labelInlineWidth - base.options.widthOffset - base.options.textIndentOffset){
+						ti = base.baseTextIndent + (sw / base.options.textIndentMultiplier);
 					}else{
 						ti = base.baseTextIndent;
 					}
@@ -134,31 +133,24 @@
 			}
 		}
 		
-		base.toCamel = function(str){
-			return str.replace(/^([a-z])/, function($1){return $1.toUpperCase();});
-		};
-		
 		base.init();
 	};
 	$.leSlide.defaultOptions = {
+		'wrapper'              : false,
 		'wrapperClass'         : 'leSlide-wrap',//This class will be assigned to the wraper for the input and label
+		'label'                : false,
 		'focusClass'           : 'field-focus', //This class is applied to the wraper when focus is recieved
 		'animate'              : true,          //Use jQuery animation
 		'animateEasing'        : 'swing',       //jQuery animate() easing
 		'animateDuration'      : 500,           //jQuery animate() duration
 		'animateComplete'      : function(){},  //jQuery animate() callback function
 		'widthOffset'          : 35,            //Add some extra pixels after the text length for better spacing
-		'textIndendMultiplier' : 2.66           //This multiplier changes the speed the label animates off the screen
+		'textIndentMultiplier' : 2.66,          //This multiplier changes the speed the label animates off the screen
+		'textIndentOffset'     : 10             //Adds extra spacing on the right of label
 	};
 	$.fn.leSlide = function(options){
 		return this.each(function() {
-			if($(this).is('input[type=text], input[type=password]')){
-				(new $.leSlide(this, options));
-			}else{
-				$(this).find('input[type=text], input[type=password]').each(function(i, e){
-					(new $.leSlide(e, options));
-				});
-			}
+			(new $.leSlide(this, options));
 		});
 	};
 })(jQuery);

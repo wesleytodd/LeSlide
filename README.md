@@ -2,7 +2,7 @@
 
 Formerly at https://github.com/wesleytodd/Form-FX/tree/master/leslide
 
-**Version 1.2**
+**Version 1.3**
 
 A plugin which creates a sliding placeholder effect.  See demo for an example.
 
