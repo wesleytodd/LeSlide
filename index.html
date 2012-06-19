@@ -2,11 +2,12 @@
 <html class="no-js" lang="en">
 <head>
 	<meta charset="utf-8">
-	<title>Form Tests</title>
-	<meta name="description" content="Different form tests">
+	<title>LeSlide - A sliding label effect for form elements</title>
+	<meta name="description" content="A sliding label effect for form elements leveraging a jQuery plugin architecture and CSS3">
 	<meta name="author" content="Wes Todd">
 	
 	<link rel="stylesheet" href="leSlide.css">
+	<script src="//modernizr.com/downloads/modernizr.js"></script>
 </head>
 
 <body>
@@ -98,9 +99,8 @@
 	<script src="jquery.leSlide.js"></script>
 	<script>
 		jQuery(document).ready(function($){
-			
 			$('input, textarea').leSlide({
-				animate: false
+				animate: (typeof Modernizr != 'undefined' && Modernizr.cssanimations)
 			});
 			
 		});

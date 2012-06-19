@@ -60,7 +60,6 @@
 		};
 		
 		base.updateWidths = function(){
-			console.log('here');
 			var tempLabel = base.$label.clone().css({
 				'display' : 'inline',
 				'width'   : 'auto'
