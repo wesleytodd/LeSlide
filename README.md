@@ -4,7 +4,7 @@ Formerly at https://github.com/wesleytodd/Form-FX/tree/master/leslide
 
 **Version 1.3**
 
-A plugin which creates a sliding placeholder effect.  See demo for an example.
+A plugin which creates a sliding placeholder effect.  See [demo page](https://rawgithub.com/wesleytodd/LeSlide/master/index.html) for an example.
 
 You can call this on either a set of inputs or an entire form.  If the input has placeholder text it will use that as the sliding text.  If no placeholder is specified, the corresponding label will be used (based on for and id attributes).
 
